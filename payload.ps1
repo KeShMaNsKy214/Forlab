@@ -1,26 +1,8 @@
-$ErrorActionPreference = 'Stop'
+$dir   = 'C:\Lab'
+$proof = "$dir\executed.txt"
 
-$evidenceDirectory = 'C:\Lab'
-$evidenceFile = Join-Path $evidenceDirectory 'executed.txt'
+try { [void](New-Item -ItemType Directory -Path $dir -Force -ErrorAction Stop) } catch { exit 1 }
 
-if (-not (Test-Path -LiteralPath $evidenceDirectory -PathType Container)) {
-    New-Item -Path $evidenceDirectory -ItemType Directory -Force | Out-Null
-}
+$entry = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] user=$env:USERDOMAIN\$env:USERNAME computer=$env:COMPUTERNAME pid=$PID"
 
-$timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
-$username = [System.Security.Principal.WindowsIdentity]::GetCurrent().Name
-$computer = $env:COMPUTERNAME
-
-$evidence = @"
-Execution time : $timestamp
-User           : $username
-Computer       : $computer
-"@
-
-Set-Content `
-    -LiteralPath $evidenceFile `
-    -Value $evidence `
-    -Encoding UTF8
-
-Write-Host "Payload успешно выполнен."
-Write-Host "Evidence: $evidenceFile"
+try { Add-Content -Path $proof -Value $entry -Encoding UTF8 } catch { exit 1 }
